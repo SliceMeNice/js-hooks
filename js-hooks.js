@@ -2,43 +2,42 @@
 	'use strict';
 
 	/**
-	 * Handles managing all events for whatever you plug it into. Priorities for hooks are based on lowest to highest in
-	 * that, lowest priority hooks are fired first.
+	 * Handles adding, removing and triggering of filter and action hooks.
+	 * Priorities of hooks are based on lowest to highest, i.e. hooks with lower priority are fired first.
 	 */
-	var EventManager = function() {
+	var HookManager = function() {
 		var slice = Array.prototype.slice;
 		
 		/**
 		 * Maintain a reference to the object scope so our public methods never get confusing.
 		 */
 		var MethodsAvailable = {
-			removeFilter : removeFilter,
-			applyFilters : applyFilters,
-			addFilter : addFilter,
-			removeAction : removeAction,
-			doAction : doAction,
-			addAction : addAction
+			addAction: addAction,
+			addFilter: addFilter,
+			applyFilters: applyFilters,
+			doAction: doAction,
+			removeAction: removeAction,
+			removeFilter: removeFilter
 		};
 
 		/**
-		 * Contains the hooks that get registered with this EventManager. The array for storage utilizes a "flat"
-		 * object literal such that looking up the hook utilizes the native object literal hash.
+		 * Stores all registered hooks separated by type.
 		 */
-		var STORAGE = {
+		var registeredHooks = {
 			actions : {},
 			filters : {}
 		};
 
 		/**
-		 * Adds an action to the event manager.
+		 * Adds an action hook callback.
 		 *
-		 * @param action Must contain namespace.identifier
-		 * @param callback Must be a valid callback function before this action is added
-		 * @param [priority=10] Used to control when the function is executed in relation to other callbacks bound to the same hook
+		 * @param action The action name / identifier
+		 * @param callback Must be a valid callback function
+		 * @param [priority=10] Used to control the order of when the callback function is executed in relation to other callbacks bound to the same hook
 		 * @param [context] Supply a value to be used for this
 		 */
 		function addAction( action, callback, priority, context ) {
-			if( typeof action === 'string' && typeof callback === 'function' ) {
+			if ( typeof action === 'string' && typeof callback === 'function' ) {
 				priority = parseInt( ( priority || 10 ), 10 );
 				_addHook( 'actions', action, callback, priority, context );
 			}
@@ -47,14 +46,14 @@
 		}
 
 		/**
-		 * Performs an action if it exists. You can pass as many arguments as you want to this function; the only rule is
-		 * that the first argument must always be the action.
+		 * Performs an action, if it exists. You can pass as many arguments as you want to this function; the only rule is
+		 * that the first argument must always be the action name / identifier.
 		 */
 		function doAction( /* action, arg1, arg2, ... */ ) {
 			var args = slice.call( arguments );
 			var action = args.shift();
 
-			if( typeof action === 'string' ) {
+			if ( typeof action === 'string' ) {
 				_runHook( 'actions', action, args );
 			}
 
@@ -62,13 +61,13 @@
 		}
 
 		/**
-		 * Removes the specified action if it contains a namespace.identifier & exists.
+		 * Removes the specified action callback, if it exists.
 		 *
-		 * @param action The action to remove
-		 * @param [callback] Callback function to remove
+		 * @param action The action name / identifier
+		 * @param [callback] The callback function to remove
 		 */
 		function removeAction( action, callback ) {
-			if( typeof action === 'string' ) {
+			if ( typeof action === 'string' ) {
 				_removeHook( 'actions', action, callback );
 			}
 
@@ -76,15 +75,15 @@
 		}
 
 		/**
-		 * Adds a filter to the event manager.
+		 * Adds a filter hook callback.
 		 *
-		 * @param filter Must contain namespace.identifier
+		 * @param filter The filter name / identifier
 		 * @param callback Must be a valid callback function before this action is added
 		 * @param [priority=10] Used to control when the function is executed in relation to other callbacks bound to the same hook
 		 * @param [context] Supply a value to be used for this
 		 */
 		function addFilter( filter, callback, priority, context ) {
-			if( typeof filter === 'string' && typeof callback === 'function' ) {
+			if ( typeof filter === 'string' && typeof callback === 'function' ) {
 				priority = parseInt( ( priority || 10 ), 10 );
 				_addHook( 'filters', filter, callback, priority, context );
 			}
@@ -100,7 +99,7 @@
 			var args = slice.call( arguments );
 			var filter = args.shift();
 
-			if( typeof filter === 'string' ) {
+			if ( typeof filter === 'string' ) {
 				return _runHook( 'filters', filter, args );
 			}
 
@@ -114,7 +113,7 @@
 		 * @param [callback] Callback function to remove
 		 */
 		function removeFilter( filter, callback ) {
-			if( typeof filter === 'string') {
+			if ( typeof filter === 'string') {
 				_removeHook( 'filters', filter, callback );
 			}
 
@@ -131,21 +130,22 @@
 		function _removeHook( type, hook, callback, context ) {
 			var handlers, handler, i;
 			
-			if ( !STORAGE[ type ][ hook ] ) {
+			if ( !registeredHooks[ type ][ hook ] ) {
 				return;
 			}
+
 			if ( !callback ) {
-				STORAGE[ type ][ hook ] = [];
+				registeredHooks[ type ][ hook ] = [];
 			} else {
-				handlers = STORAGE[ type ][ hook ];
+				handlers = registeredHooks[ type ][ hook ];
+
 				if ( !context ) {
 					for ( i = handlers.length; i--; ) {
 						if ( handlers[i].callback === callback ) {
 							handlers.splice( i, 1 );
 						}
 					}
-				}
-				else {
+				} else {
 					for ( i = handlers.length; i--; ) {
 						handler = handlers[i];
 						if ( handler.callback === callback && handler.context === context) {
@@ -174,16 +174,16 @@
 			};
 
 			// Utilize 'prop itself' : http://jsperf.com/hasownproperty-vs-in-vs-undefined/19
-			var hooks = STORAGE[ type ][ hook ];
+			var hooks = registeredHooks[ type ][ hook ];
+
 			if( hooks ) {
 				hooks.push( hookObject );
 				hooks = _hookInsertSort( hooks );
-			}
-			else {
+			} else {
 				hooks = [ hookObject ];
 			}
 
-			STORAGE[ type ][ hook ] = hooks;
+			registeredHooks[ type ][ hook ] = hooks;
 		}
 
 		/**
@@ -195,13 +195,16 @@
 		 */
 		function _hookInsertSort( hooks ) {
 			var tmpHook, j, prevHook;
-			for( var i = 1, len = hooks.length; i < len; i++ ) {
+
+			for ( var i = 1, len = hooks.length; i < len; i++ ) {
 				tmpHook = hooks[ i ];
 				j = i;
-				while( ( prevHook = hooks[ j - 1 ] ) &&  prevHook.priority > tmpHook.priority ) {
+
+				while ( ( prevHook = hooks[ j - 1 ] ) &&  prevHook.priority > tmpHook.priority ) {
 					hooks[ j ] = hooks[ j - 1 ];
 					--j;
 				}
+
 				hooks[ j ] = tmpHook;
 			}
 
@@ -217,13 +220,14 @@
 		 * @private
 		 */
 		function _runHook( type, hook, args ) {
-			var handlers = STORAGE[ type ][ hook ], i, len;
+			var handlers = registeredHooks[ type ][ hook ], i, len;
 			
 			if ( !handlers ) {
-				return (type === 'filters') ? args[0] : false;
+				return ( type === 'filters' ) ? args[0] : false;
 			}
 
 			len = handlers.length;
+			
 			if ( type === 'filters' ) {
 				for ( i = 0; i < len; i++ ) {
 					args[ 0 ] = handlers[ i ].callback.apply( handlers[ i ].context, args );
@@ -239,10 +243,8 @@
 
 		// return all of the publicly available methods
 		return MethodsAvailable;
-
 	};
 	
-	window.wp = window.wp || {};
-	window.wp.hooks = new EventManager();
+	window.hooks = window.hooks || new HookManager();
 
 } )( window );

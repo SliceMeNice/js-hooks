@@ -1,12 +1,31 @@
 {
-  "name": "WP-JS-Hooks",
-  "props": "Carl Danley & 10up",
-  "version": "0.1.1",
+  "name": "@slicemenice/js-hooks",
+  "version": "1.0.0",
+  "description": "Manage filter and actions hooks in JavaScript.",
+  "scripts": {
+    "build:dist": "n-clean ./dist/ && uglifyjs ./js-hooks.js --output ./dist/js-hooks.min.js --compress --mangle",
+    "release-to-branch": "branch-release -s build:dist",
+    "test": "echo \"Tests should be here\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:SliceMeNice/js-hooks.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SliceMeNice/js-hooks/issues"
+  },
+  "homepage": "https://github.com/SliceMeNice/js-hooks",
+  "contributors": [
+    {
+      "name": "Stefan Ullinger",
+      "email": "stefan@slicemenice.de"
+    }
+  ],
+  "author": "SliceMeNice",
+  "license": "MIT",
   "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-contrib-jshint": "~0.11.0",
-    "grunt-contrib-nodeunit": "~0.4.1",
-    "grunt-contrib-uglify": "~0.8.0",
-    "grunt-contrib-qunit": "~0.5.2"
+    "branch-release": "1.0.3",
+    "npm-build-tools": "2.2.5",
+    "uglify-js": "2.7.3"
   }
 }
