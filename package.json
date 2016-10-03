@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Manage filter and actions hooks in JavaScript.",
   "scripts": {
-    "build:dist": "n-clean ./dist/ && uglifyjs ./js-hooks.js --output ./dist/js-hooks.min.js --compress --mangle",
+    "build:dist": "n-clean ./dist/ && n-run 'mkdir dist' && uglifyjs ./js-hooks.js --output ./dist/js-hooks.min.js --compress --mangle",
     "release-to-branch": "branch-release -s build:dist",
     "test": "echo \"Tests should be here\" && exit 0"
   },
