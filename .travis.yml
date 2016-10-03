@@ -1,0 +1,23 @@
+language: node_js
+node_js:
+- '6'
+branches:
+  except:
+  - releases
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: npm run release-to-branch
+  on:
+    branch: master
+- provider: npm
+  skip_cleanup: true
+  email: npm@slicemenice.de
+  api_key:
+    secure: NT8yxbgTsXlhfEDjCATrfVsXabY+oBTPnN+WR5YbLncHh58NK+/I2+JWg4mf7zSZdo0LRikCmOhMukRgcJ38aEq6BtPsoDsAhHVpMI1IrgtzODX4K3InHlID2+PeDh3jW73nhURoesXtZfQPkKdWLf6WB5B8Zht1EtlEf3cER7f7KY4mD2vmq0otQLdAD5Zm6UIfmleOrHs0RWmHwelp1nzr4MIjqd4aflzCJYZ6hu3QDqEA2+9T/ZCfwHf4DG/9ydcZHCzvV/9+3RC8e7V3zrCIFlixzgvpRJSYWr0c19k9L94cBpyzjkOh7aF8e1SDSQKdEfKEg74z9IHE6fi+0kxbKrIcE+96LBNXlyjgDjHA51eQkfLsrH03c8KCZ/K84CiUs+wt5UIHjFU0y5znP9xOQfz1g5rCGvBfsRvliSxMgdcXtMkVMRgeVHZ0hom1Kxk5gZ40SYPqHPtrmERMeXQHZciVaH+p0UYoczJ85PwXzfL0BfglGehW35jH4qgqitJGGiEfbW8sl3kTO5gQbsRL2jknWwJG0Gu1KzbV6/1WbQarVx20Rx6MDCbL2OBxTCefVedRRYY1eUqy3Iy/pnVkXUrElo2ME56qBCUXoBRSD2hvn0drs9Wxni4yCZk+ipwclC3jfSgSHEfxMQ91bKcQhQhNBdbYu2ortTMq6aA=
+  on:
+    branch: releases
+    tags: true
+env:
+  global:
+  - secure: NaU8bLwuA2ShqaIiwe6MvURHqHAM4+2vh67b/CcKFFR30OssrJj+QRryO1p7znmd+yEuUr3ptilY2KTwjCKQl6KLi2/IQh4KxpYtbltLMDd1E2UkAjAPYCoFx/MT5ttz49aOQVVr46wRAgvJJQr7wRm2dgfi4tg2HQ1aFwQsxuLXkBBI3rlxE8C1zc2rtHI9mWhBHpgQeCxoYq2rMrQmHkQ7grpq3DEgjLCho+oiS7PIxz4v+KFc0B1/GYcx0Yxx7fhnW1nYu7k6hqin+WrDHKQUwdtrO6akVX+/OQtUImbUoxuNYHQqzK0PhMQwBivxYz/mFVhXF63Y9cgFKRuQM/wRdXKxeWs/5zYFkdLlGwEmqeGHDS5FrYLCyKJtidpSCDure5zXaqoSMtyntSqWKMoRwCLO4nNLM7i69/IwDNs3hX+nYhuxD/i69VotmY7rmpuX6VfQWmKytOE3k01LTrPOtWdzEnQHxfX91tjCeBhufQg/ZwFPkxPIQR4qn2YtTTSxWphpy0lDBR+iXPnPyR0x9QFTKrvaWZHlRbISlTRKBSQbbYVI286ARbWm0PQpszJBbAVatVkeIY7FiPVX5jF1yPGUVUvcDUMzBlwF1r/DkL7miRp5neRP8pWTcWyuTOQkDfkSLghrDzapE6ugkgxgLEn1XZzvwFKjWP7EFoo=
